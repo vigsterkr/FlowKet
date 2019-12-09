@@ -99,8 +99,12 @@ class ComplexValuesStochasticReconfiguration(ComplexValuesOptimizer):
             # take the real part ...
             energy_grad = tf.conj(tensors_to_column(energy_grads)) / 2
         else:
-            complex_vector = tf.conj(tf.reshape(self.predictions_keras_model.targets[0],
-                                                (-1, 1)))
+            if tf.__version__ >= '1.14':
+                target = self.predictions_keras_model._targets[0]
+            else:
+                target = self.predictions_keras_model.targets[0]
+
+            complex_vector = tf.conj(tf.reshape(target, (-1, 1)))
             if wave_function_jacobian_minus_mean is None:
                 energy_grad = self.get_predictions_jacobian_vector_product(complex_vector,
                                                                            conjugate_jacobian=True)

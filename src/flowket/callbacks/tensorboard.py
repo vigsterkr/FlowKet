@@ -267,9 +267,18 @@ class TensorBoard(Callback):
             if epoch % self.histogram_freq == 0:
 
                 val_data = self.validation_data
-                tensors = (self.model.inputs +
-                           self.model.targets +
-                           self.model.sample_weights)
+                if tf.__version__ >= '1.14':
+                    assert self.model.inputs is not None
+                    assert self.model._targets is not None
+                    assert self.model.sample_weights is not None
+
+                    tensors = (self.model.inputs +
+                               self.model._targets +
+                               self.model.sample_weights)
+                else:
+                    tensors = (self.model.inputs +
+                               self.model.targets +
+                               self.model.sample_weights)
 
                 if hasattr(self.model, 'uses_learning_phase') and self.model.uses_learning_phase:
                     tensors += [K.learning_phase()]
